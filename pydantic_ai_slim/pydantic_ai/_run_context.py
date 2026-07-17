@@ -40,6 +40,13 @@ def _is_revealed_by_loaded_capability(ctx: RunContext[Any], tool_def: ToolDefini
     # The request pipeline only reveals loaded capabilities that are deferred in the current run.
     # A loaded id resumed into a now-non-deferred capability must not reveal its tool-deferred members.
     return capability is not None and capability.defer_loading is True
+@dataclasses.dataclass
+class OutputBufferState:
+    """Private state for incrementally built output-tool arguments."""
+
+    raw_args: dict[str, Any] | None = None
+    validation_error: _messages.RetryPromptPart | None = None
+    revision: int = 0
 
 
 @dataclasses.dataclass(repr=False, kw_only=True)
@@ -155,6 +162,9 @@ class RunContext(Generic[RunContextAgentDepsT]):
     the process-shared toolset instance, so whether a wrapper schedules its `get_tools` activity/step
     depends only on the run's own history and stays replay-deterministic.
     """
+
+    _output_buffers: dict[str, OutputBufferState] | None = field(default=None, repr=False)
+    """Private output-buffer state shared with generated buffered-output tools."""
 
     tool_manager: ToolManager[RunContextAgentDepsT] | None = None
     """The tool manager for the current run step.
