@@ -40,6 +40,8 @@ def _is_revealed_by_loaded_capability(ctx: RunContext[Any], tool_def: ToolDefini
     # The request pipeline only reveals loaded capabilities that are deferred in the current run.
     # A loaded id resumed into a now-non-deferred capability must not reveal its tool-deferred members.
     return capability is not None and capability.defer_loading is True
+
+
 @dataclasses.dataclass
 class OutputBufferState:
     """Private state for incrementally built output-tool arguments."""
